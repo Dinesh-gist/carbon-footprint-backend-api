@@ -21,14 +21,16 @@ public class FootprintController {
     private FootPrintService footPrintService;
     @Autowired
     private CompanyListService companyListService;
+
     @PostMapping("companyInfo")
     public ResponseEntity<List<ApportionedImpact>> getPortfolioList(@RequestBody CompanyInput companyInput){
         return footPrintService.apportionedImpacts(companyInput);
 
     }
-
+    @GetMapping("getCompanies")
     public ResponseEntity<List<String>> getCompanies(){
         return companyListService.getAllCompanies();
     }
+
 
 }
