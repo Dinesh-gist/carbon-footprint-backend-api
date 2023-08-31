@@ -10,4 +10,5 @@ public class PortfolioFootprint {
     private int reportingYear;
     private double carbonFootprintPerMInvest;
     private double totalCarbonFootprint;
+    private double benchMarkFootprint;
 }
