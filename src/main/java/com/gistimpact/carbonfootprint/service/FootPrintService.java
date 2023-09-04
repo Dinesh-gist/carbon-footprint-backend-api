@@ -43,37 +43,6 @@ public class FootPrintService {
         return apportionedImpacts;
     }
 
-    // Returns the portfolio footprint for years 2019, 2020, 2021
-//    public ResponseEntity<List<PortfolioFootprint>> calculatePortfolioImpact(List<CompanyInput> portfoiloList) {
-//        List<List<ApportionedImpact>> apportionedImpactsList=new ArrayList<>();
-//        double totalInvestment=0.0;
-//        for(CompanyInput companyInput:portfoiloList){
-//            totalInvestment+=companyInput.getInvestmentAmount();
-//            apportionedImpactsList.add(apportionedImpacts(companyInput));
-//        }
-//        System.out.println("totalInvestment = " + totalInvestment);
-//        List<Double> totalCarbonFootprint;
-//        double carbonFootprint1=0.0;
-//        double carbonFootprint2=0.0;
-//        double carbonFootprint3=0.0;
-//        for(List<ApportionedImpact> apportionedImpacts:apportionedImpactsList){
-//            for(ApportionedImpact apportionedImpact:apportionedImpacts){
-//                if(apportionedImpact.getReportingYear()==2019)
-//                    carbonFootprint1+=apportionedImpact.getCarbonFootprint();
-//                else if (apportionedImpact.getReportingYear()==2020) {
-//                    carbonFootprint2+=apportionedImpact.getCarbonFootprint();
-//                } else if (apportionedImpact.getReportingYear()==2021) {
-//                    carbonFootprint3+=apportionedImpact.getCarbonFootprint();
-//                }
-//            }
-//        }
-//        List<PortfolioFootprint> portfolioFootprints=new ArrayList<>();
-//        portfolioFootprints.add(new PortfolioFootprint(2019,carbonFootprint1/totalInvestment*1e6,carbonFootprint1));
-//        portfolioFootprints.add(new PortfolioFootprint(2020,carbonFootprint2/totalInvestment*1e6,carbonFootprint2));
-//        portfolioFootprints.add(new PortfolioFootprint(2021,carbonFootprint3/totalInvestment*1e6,carbonFootprint3));
-//        System.out.println("portfolioFootprints = " + portfolioFootprints);
-//        return new ResponseEntity<>(portfolioFootprints,HttpStatus.OK);
-//    }
 
     public ResponseEntity<List<PortfolioFootprint>> calculatePortfolioImpact(List<CompanyInput> portfolioList) {
         Map<Integer, Double> yearlyFootprints = new HashMap<>();
@@ -100,7 +69,7 @@ public class FootPrintService {
             double carbonFootprint = entry.getValue();
             double carbonFootprintPerMillion = carbonFootprint / totalInvestment* 1e6;
 
-            portfolioFootprints.add(new PortfolioFootprint(year, carbonFootprintPerMillion, carbonFootprint,benchMark.get(year)));
+            portfolioFootprints.add(new PortfolioFootprint(year, carbonFootprintPerMillion, carbonFootprint,benchMark.get(year),(1-carbonFootprint/benchMark.get(year))*100));
         }
 
         return new ResponseEntity<>(portfolioFootprints, HttpStatus.OK);

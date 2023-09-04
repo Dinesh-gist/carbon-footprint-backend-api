@@ -11,4 +11,5 @@ public class PortfolioFootprint {
     private double carbonFootprintPerMInvest;
     private double totalCarbonFootprint;
     private double benchMarkFootprint;
+    private double efficiency;
 }

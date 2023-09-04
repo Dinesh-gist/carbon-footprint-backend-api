@@ -16,11 +16,12 @@ public class CompanyListService {
     @Autowired
     private CompanyListRepository companyListRepository;
     public ResponseEntity<List<String>> getAllCompanies() {
-        List<Company> companies = companyListRepository.findAll();
-        List<String> companyList=new ArrayList<>();
-        for(Company company:companies){
-            companyList.add(company.getCompanyName());
-        }
-        return new ResponseEntity<>(companyList, HttpStatus.OK);
+       // List<Company> companies = companyListRepository.findAll();
+        //List<String> companyList=new ArrayList<>();
+
+//        for(Company company:companies){
+//            companyList.add(company.getCompanyName());
+//        }
+        return new ResponseEntity<>(companyListRepository.findAllCompanyNames(), HttpStatus.OK);
     }
 }

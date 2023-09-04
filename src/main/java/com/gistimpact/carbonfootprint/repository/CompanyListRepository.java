@@ -11,4 +11,7 @@ import java.util.UUID;
 
 @Repository
 public interface CompanyListRepository extends JpaRepository<Company, UUID> {
+
+    @Query(value = "select e.company_name from entity_info e",nativeQuery = true)
+    List<String> findAllCompanyNames();
 }
