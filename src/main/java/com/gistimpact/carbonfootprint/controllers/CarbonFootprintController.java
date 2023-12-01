@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 @Validated
-public class FootprintController {
+public class CarbonFootprintController {
 
     @Autowired
     private FootPrintService footPrintService;
