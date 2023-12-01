@@ -3,6 +3,8 @@ package com.gistimpact.carbonfootprint.service;
 import com.gistimpact.carbonfootprint.dto.ApportionedImpact;
 import com.gistimpact.carbonfootprint.dto.CompanyInput;
 import com.gistimpact.carbonfootprint.dto.PortfolioFootprint;
+import com.gistimpact.carbonfootprint.exception.CompanyNotFoundException;
+import com.gistimpact.carbonfootprint.exception.ImpactDataNotfound;
 import com.gistimpact.carbonfootprint.models.Company;
 import com.gistimpact.carbonfootprint.models.ImpactData;
 import com.gistimpact.carbonfootprint.models.SortByYear;
@@ -28,23 +30,32 @@ public class FootPrintService {
     private ImpactDataRepository impactDataRepository;
 
     // Returns the carbon footprint at company level
-    public List<ApportionedImpact> apportionedImpacts(CompanyInput companyInput) {
+    public ResponseEntity<List<ApportionedImpact>> apportionedImpacts(CompanyInput companyInput) throws CompanyNotFoundException, ImpactDataNotfound {
 
         Set<ApportionedImpact> apportionedImpactList=new HashSet<>();
         Company company=companyRepository.findByCompanyName(companyInput.getCompanyName());
-
-        List<ImpactData> impactDataList=impactDataRepository.findAllByCompany(company);
-        for(ImpactData impactData:impactDataList){
-            double footPrint=companyInput.getInvestmentAmount()/impactData.getMarketCapitalization()*impactData.getGhgImpactUsd()/1e6;
-            apportionedImpactList.add(new ApportionedImpact(company.getCompanyName(),company.getSectorInfo().getSectorName(),impactData.getReportingYear(),footPrint));
+        if(company!=null) {
+            List<ImpactData> impactDataList = impactDataRepository.findAllByCompany(company);
+            if(!impactDataList.isEmpty()) {
+                for (ImpactData impactData : impactDataList) {
+                    double footPrint = companyInput.getInvestmentAmount() / impactData.getMarketCapitalization() * impactData.getGhgImpactUsd() / 1e6;
+                    apportionedImpactList.add(new ApportionedImpact(company.getCompanyName(), company.getSectorInfo().getSectorName(), impactData.getReportingYear(), footPrint));
+                }
+                List<ApportionedImpact> apportionedImpacts = new ArrayList<>(apportionedImpactList);
+                Collections.sort(apportionedImpacts, new SortByYear());
+                return ResponseEntity.ok(apportionedImpacts);
+            }
+            else{
+                throw new ImpactDataNotfound("Company with company name: "+companyInput.getCompanyName()+" has no impact data");
+            }
         }
-        List<ApportionedImpact> apportionedImpacts=new ArrayList<>(apportionedImpactList);
-        Collections.sort(apportionedImpacts,new SortByYear());
-        return apportionedImpacts;
+        else {
+            throw new CompanyNotFoundException("Company with company name: "+companyInput.getCompanyName()+" not found");
+        }
     }
 
 
-    public ResponseEntity<List<PortfolioFootprint>> calculatePortfolioImpact(List<CompanyInput> portfolioList) {
+    public ResponseEntity<List<PortfolioFootprint>> calculatePortfolioImpact(List<CompanyInput> portfolioList) throws CompanyNotFoundException, ImpactDataNotfound {
         Map<Integer, Double> yearlyFootprints = new HashMap<>();
         double totalInvestment = 0.0;
         Map<Integer, Double> benchMark=new HashMap<>();
@@ -52,7 +63,7 @@ public class FootPrintService {
         List<Double> benchMarkMarketCapMillionUsd=Arrays.asList(23067428.095454957,28349767.01569506,31914785.90541899,37246961.267511);
         for (CompanyInput companyInput : portfolioList) {
             totalInvestment += companyInput.getInvestmentAmount();
-            List<ApportionedImpact> apportionedImpacts = apportionedImpacts(companyInput);
+            List<ApportionedImpact> apportionedImpacts = apportionedImpacts(companyInput).getBody();
 
             for (ApportionedImpact apportionedImpact : apportionedImpacts) {
                 yearlyFootprints.put(apportionedImpact.getReportingYear(), yearlyFootprints.getOrDefault(apportionedImpact.getReportingYear(), 0.0) + apportionedImpact.getCarbonFootprint());
